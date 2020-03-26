@@ -22,12 +22,13 @@
     <div id="qqmap" class="map-container"></div>
     <script>
         window.onload = function () {
-            MapFactory(1, document.getElementById("bmap"), null, 5, mapLoaded);
-            MapFactory(2, document.getElementById("qqmap"), null, 5, mapLoaded1);
+            a = MapFactory(1, document.getElementById("bmap"), null, 5, mapLoaded);
+            b = MapFactory(2, document.getElementById("qqmap"), null, 5, mapLoaded1);
 
 
         }
         function mapLoaded() {
+            
             this.addEventListener("zoom_changed", function (data) {
                 console.log(data)
             });

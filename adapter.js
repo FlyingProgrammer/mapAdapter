@@ -67,6 +67,9 @@ var MapAdapter = {
     },
     toQQMapPoint(latLng) {
         return new qq.maps.LatLng(latLng.lat, latLng.lng)
+    },
+    toLatLng(point){
+        return new LatLng(point.lat,point.lng);
     }
 }
 
@@ -124,17 +127,17 @@ function BMapAdapter() {
 }
 BMapAdapter.prototype = {
     setCenter: function (center) {
-        var point = new BMap.Point(center.lat, center.lng);
-        MapAdapter.mapObj.setCenter(point);
+        this.mapInstance.setCenter(MapAdapter.toBMapPoint(center));
     },
     getCenter: function () {
-
+        var center = this.mapInstance.getCenter();
+        return MapAdapter.toLatLng(center)
     },
     getZoom: function () {
         return this.mapInstance.getZoom();
     },
     setZoom: function (zoom) {
-        MapAdapter.mapObj.setZoom(zoom);
+        this.mapInstance.setZoom(zoom);
     },
     addEventListener: function (evtName, fun) {
         this.dispatchListener.call(this,evtName, fun);
@@ -178,13 +181,16 @@ function QQMapAdapter() {
 }
 QQMapAdapter.prototype = {
 
-    setCenter: function () {
-        
+    setCenter: function (point) {
+        var center = MapAdapter.toQQMapPoint(point);
+        this.mapInstance.setCenter(center);
     },
-    setZoom: function () {
+    setZoom: function (zoom) {
+        this.mapInstance.setZoom(zoom);
     },
     getCenter: function () {
-
+        var center = this.mapInstance.getCenter();
+        return MapAdapter.toLatLng(center)
     },
     getZoom: function () {
         return this.mapInstance.getZoom();
