@@ -237,31 +237,4 @@ MapAdapter.prototype = {
 
     },
 }
-window.onload = function () {
-    MapFactory(1, document.getElementById("bmap"), null, 5,mapLoaded);
-    MapFactory(2, document.getElementById("qqmap"),null,5,mapLoaded1);
-
-
-}
-function mapLoaded (){
-    this.addEventListener("zoom_changed", function (data) {
-        console.log(data)
-    });
-   
-    var point = new LatLng(23,112);
-    var marker = this.drawMarker(point);
-    setTimeout(()=>{
-        marker.remove();
-    },3000)
-}
-function mapLoaded1 (){
-    this.addEventListener("zoom_changed", function (data) {
-        console.log(data)
-    });
-    var point = new LatLng(23,112);
-    var marker = this.drawMarker(point);
-    setTimeout(()=>{
-        marker.remove();
-    },3000)
-}
 
