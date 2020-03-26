@@ -179,7 +179,7 @@ function QQMapAdapter() {
 QQMapAdapter.prototype = {
 
     setCenter: function () {
-
+        
     },
     setZoom: function () {
     },
@@ -210,7 +210,20 @@ QQMapAdapter.prototype = {
         }
 
     },
-   
+    drawMarker: function (latLng) {
+        var point = MapAdapter.toQQMapPoint(latLng);
+        var bMarker = new qq.maps.Marker({
+            position:point, 
+            map:this.mapInstance
+        });        // 创建标注    
+        var marker = new Marker();
+        marker.setMarker(bMarker);
+        marker.setAdapter(this);
+        return marker;
+    },
+    removeOverlay:function(overlay){
+        overlay.setMap(null)
+    },
 }
 MapAdapter.prototype = {
 
@@ -226,13 +239,11 @@ MapAdapter.prototype = {
 }
 window.onload = function () {
     MapFactory(1, document.getElementById("bmap"), null, 5,mapLoaded);
-    MapFactory(2, document.getElementById("qqmap"),null,null,mapLoaded1);
-
+    MapFactory(2, document.getElementById("qqmap"),null,5,mapLoaded1);
 
 
 }
 function mapLoaded (){
-    console.log(this)
     this.addEventListener("zoom_changed", function (data) {
         console.log(data)
     });
@@ -244,10 +255,13 @@ function mapLoaded (){
     },3000)
 }
 function mapLoaded1 (){
-    console.log(this)
     this.addEventListener("zoom_changed", function (data) {
         console.log(data)
     });
-
+    var point = new LatLng(23,112);
+    var marker = this.drawMarker(point);
+    setTimeout(()=>{
+        marker.remove();
+    },3000)
 }
 
