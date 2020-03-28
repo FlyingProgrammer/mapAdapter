@@ -2,6 +2,10 @@ function LatLng(lat, lng) {
     this.lat = lat;
     this.lng = lng;
 }
+function AddressComponent(city){
+    this.city = city;
+  
+}
 function Marker() {
     this.map = null;
     this.title = "";
@@ -12,20 +16,20 @@ Marker.prototype = {
     addEventListener: function (evtName, handle) {
 
     },
-    setTitle:function(title){
+    setTitle: function (title) {
         this._marker.setTitle(title);
     },
-    setMarker:function(marker){
+    setMarker: function (marker) {
         this._marker = marker;
     },
-    setAdapter:function(adapter){
+    setAdapter: function (adapter) {
         this._mapInstance = adapter;
     },
-    remove:function(){
+    remove: function () {
         this._mapInstance.removeOverlay(this._marker);
-      
+
     }
-    
+
 }
 var MapAdapter = {
     MapType: {
@@ -56,8 +60,8 @@ var MapAdapter = {
                 };
                 mapObj.mapInstance = new qq.maps.Map(mapObj.container, myOptions);
             }
-            if(mapObj.mapInstance &&typeof mapObj.handle =="function"){
-                mapObj.handle.call(mapObj);
+            if (mapObj.mapInstance && typeof mapObj.handle == "function") {
+                mapObj.handle(mapObj);
             }
         })
 
@@ -68,12 +72,12 @@ var MapAdapter = {
     toQQMapPoint(latLng) {
         return new qq.maps.LatLng(latLng.lat, latLng.lng)
     },
-    toLatLng(point){
-        return new LatLng(point.lat,point.lng);
+    toLatLng(point) {
+        return new LatLng(point.lat, point.lng);
     }
 }
 
-function MapFactory(type, container, center, zoom,handle) {
+function MapFactory(type, container, center, zoom, handle) {
     if (!(type && container)) {
         console.error("type和container不能为空");
         return;
@@ -140,11 +144,15 @@ BMapAdapter.prototype = {
         this.mapInstance.setZoom(zoom);
     },
     addEventListener: function (evtName, fun) {
-        this.dispatchListener.call(this,evtName, fun);
+        this.dispatchListener.call(this, evtName, fun);
     },
-    removeOverlay:function(overlay){
+    removeOverlay: function (overlay) {
         this.mapInstance.removeOverlay(overlay)
     },
+    clearAllOverlay: function () {
+        
+    },
+
     drawMarker: function (latLng) {
         var point = MapAdapter.toBMapPoint(latLng);
         var bMarker = new BMap.Marker(point);        // 创建标注    
@@ -170,6 +178,16 @@ BMapAdapter.prototype = {
                 console.error("暂不支持[" + evtName + "]事件")
         }
 
+    },
+    getPoint:function(location,fun){
+        var geocoder = new BMap.Geocoder();        
+        geocoder.getPoint(location, function(point,addressComponent){ 
+            if (point && fun) {   
+                var latLng =    MapAdapter.toLatLng(point);
+                var address = new AddressComponent(addressComponent.city);
+               fun(latLng,address);   
+            }      
+        });
     }
 }
 
@@ -197,7 +215,7 @@ QQMapAdapter.prototype = {
     },
     addEventListener: function (evtName, fun) {
 
-        this.dispatchListener.call(this,evtName, fun)
+        this.dispatchListener.call(this, evtName, fun)
     },
     dispatchListener: function (evtName, fun) {
         var that = this;
@@ -219,28 +237,34 @@ QQMapAdapter.prototype = {
     drawMarker: function (latLng) {
         var point = MapAdapter.toQQMapPoint(latLng);
         var bMarker = new qq.maps.Marker({
-            position:point, 
-            map:this.mapInstance
+            position: point,
+            map: this.mapInstance
         });        // 创建标注    
         var marker = new Marker();
         marker.setMarker(bMarker);
         marker.setAdapter(this);
         return marker;
     },
-    removeOverlay:function(overlay){
+    removeOverlay: function (overlay) {
         overlay.setMap(null)
     },
+    getPoint:function(location,fun){
+      
+    
+        var geocoder =  new qq.maps.Geocoder();  
+        geocoder.setComplete(function(result) {
+            var latLng =    MapAdapter.toLatLng(result.detail.location);
+            var addressComponent = result.detail.addressComponents;
+            var address = new AddressComponent(addressComponent.city);
+            fun && fun(latLng,address);
+        });
+        geocoder.setError(function(){
+            console.error("解析地址错误");
+        })
+        geocoder.getLocation(location);
+    }
 }
-MapAdapter.prototype = {
 
-    drawMarker: function () {
 
-    },
-    setCenter: function () {
 
-    },
-    setZoom: function () {
-
-    },
-}
 
